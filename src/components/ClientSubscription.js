@@ -18,7 +18,7 @@ class ClientSubscription extends React.Component {
             clientSubList: [],
             loaded: false,
             clientTitle: 'select client',
-            subStatus: '',
+            subStatus: null,
     
 
         };
@@ -76,65 +76,74 @@ class ClientSubscription extends React.Component {
     }
 
     changeRadio = (e) => {
-     
-        this.setState({ subStatus:e.target.value })
+      
+        if (e.target.value == "Active") {
+            this.setState({ subStatus: true })
+        }
+        else { this.setState({ subStatus:false }) }
     }
 
-    //handleFormSubmit = (event) => {
-    //    event.preventDefault();
-    //    console.log(this.state);
-    //    const service = {
-    //        serviceName: this.state.serviceName,
-    //        sku: this.state.sku
-    //    }
-    //    axios.post(`/api/AppServices`, service)
-    //        .then(res => {
-    //            console.log(res)
-    //        });
-    //    confirmAlert({
+    handleFormSubmit = (event) => {
+        event.preventDefault();
+       
+        const subscription = {
+            clientID: this.state.clientID,
+            appServiceID: this.state.serviceID,
+            isSubscriptionActive: this.state.subStatus
+        }
+        console.log(subscription)
+        axios.post(`/api/ClientSubscriptions`, subscription)
+            .then(res => {
+                console.log(res)
+            });
+        confirmAlert({
 
-    //        message: 'Entry added successfully',
-    //        buttons: [
-    //            {
-    //                label: 'Proceed',
-    //                onClick: () => this.setState({ loaded: false }, this.renderListagain())
-    //            }]
-    //    });
-    //    this.setState({ serviceName: '', sku: '' })
-    //}
-
-
-    //deleteService = (e) => {
-    //    console.log(e);
-
-    //    confirmAlert({
-
-    //        message: 'Are you sure to delete this entry',
-    //        buttons: [
-    //            {
-    //                label: 'Yes',
-    //                onClick: () => axios.delete(`/api/AppServices/` + e).then(res =>
-    //                    this.setState({ loaded: false }, this.renderListagain())
-    //                )
-    //            },
-    //            {
-    //                label: 'No',
-    //                onClick: () => console.log('No')
-    //            }
-    //        ]
-    //    });
-    //}
+            message: 'Entry added successfully',
+            buttons: [
+                {
+                    label: 'Proceed',
+                    onClick: () => this.setState({ loaded: false }, this.renderListagain())
+                }]
+        });
+        this.setState({
+            clientID: '',
+            serviceID: '', subStatus:null
+        })
+    }
 
 
-    //renderListagain = () => {
+    deleteSubscription = (e) => {
+        console.log(e);
+
+        confirmAlert({
+
+            message: 'Are you sure to delete this entry',
+            buttons: [
+                {
+                    label: 'Yes',
+                    onClick: () => axios.delete(`/api/ClientSubscriptions/`+e).then(res =>
+                        this.setState({ loaded: false }, this.renderListagain())
+                    )
+                },
+                {
+                    label: 'No',
+                    onClick: () => console.log('No')
+                }
+            ]
+        });
+    }
 
 
-    //    axios.get(`/api/AppServices`)
-    //        .then(res => {
-    //            const persons = res.data;
-    //            this.setState({ appServiceList: persons, loaded: true });
-    //        })
-    //}
+    renderListagain = () => {
+
+
+        axios.get(`api/ClientSubscriptions`)
+            .then(res => {
+                const persons = res.data;
+                // console.log(persons)
+                this.setState({ clientSubList: persons, loaded: true });
+            })
+    }
 
     sliceDate(date) {
         if (date == null) {
@@ -180,7 +189,7 @@ class ClientSubscription extends React.Component {
                     <td>{this.sliceDate(result.licenseExpiredDate)}</td>
                     <td>{this.sliceDate(result.licenseActivationDate)}</td>
                     {this.checkTrue(result.isSubscriptionActive)}
-                    <td><Button onClick={() => this.deleteService(result.appServiceID)}>Delete</Button>&nbsp;</td>
+                    <td><Button onClick={() => this.deleteSubscription(result.clientSubscriptionID)}>Delete</Button>&nbsp;</td>
                 </tr>
 
             )
