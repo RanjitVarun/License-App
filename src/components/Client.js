@@ -54,6 +54,7 @@ class Client extends React.Component {
                     onClick: () => this.renderListagain()
                 }]
         });
+        this.setState({ clientName:'' })
     }
 
 
